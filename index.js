@@ -10,6 +10,7 @@ const express = require('express')
 const app = express()
 app.use(express.json())
 const port = 3000
+
 // call from client
 app.post("/clients/login", async (req, res) => {
     // SEND:
@@ -73,6 +74,7 @@ app.post("/devices/add", async (req, res) => {
         res.json(error.message)
     }
 })
+
 
 // call from device
 app.post("/devices/connect", async (req, res) => {
