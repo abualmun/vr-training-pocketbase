@@ -181,6 +181,7 @@ app.post("/devices/start_game", async (req, res) => {
         const scenario = await pb.collection('scenarios').getFirstListItem(`id = "${device.running_scenario}"`);
 
         return res.json(200, {
+            device_id: device.id,
             scenario_id: device.running_scenario,
             scenario_name: scenario.name,
             metrics_keys: scenario.metrics_keys,

@@ -2,9 +2,10 @@
 post("/devices/connect")
 
  SEND:{
-     connect_code,
-     device_serial_number
+     connect_code(user_input),
+     device_serial_number(get_from_device)
 }
+
     RETURN:{
   "id",
   "collectionId",
@@ -20,13 +21,16 @@ post("/devices/connect")
   "running_record"
 }
 
+
+
 2-
 app.post("/devices/start_game")
      SEND:{
-         device_serial_number
+         device_serial_number(get_from_device)
      }
 
 return{
+    device_id,
     scenario_id,
     scenario_name,
     metrics_keys,
@@ -39,13 +43,13 @@ return{
 3-
 post("/records/add")
  SEND: {
-        "scenario_id",
-         "client_id",
-         "device_id",
-         "metrics",
-     "checklist",
-     "additional_info",
-      "record_id"
+        "scenario_id"(got from "start_game" response),
+         "client_id"(got from "start_game" response),
+         "device_id"(got from "start_game" response),
+         "metrics"(send as json file, keys got from "start_game" response),
+     "checklist"(send as json file, keys got from "start_game" response),
+     "additional_info"(send as json file, keys got from "start_game" response),
+      "record_id"(got from "start_game" response)
  }
 
 RETURN: {
