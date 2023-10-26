@@ -1,0 +1,64 @@
+1-
+post("/devices/connect")
+
+ SEND:{
+     connect_code,
+     device_serial_number
+}
+    RETURN:{
+  "id",
+  "collectionId",
+  "collectionName",
+  "created",
+  "updated",
+  "device_ip",
+  "client_id",
+  "connect_code",
+  "device_serial_number",
+  "ready": true,
+  "running_scenario",
+  "running_record"
+}
+
+2-
+app.post("/devices/start_game")
+     SEND:{
+         device_serial_number
+     }
+
+return{
+    scenario_id,
+    scenario_name,
+    metrics_keys,
+    checklist_keys,
+    additional_info,
+    client_id,
+    record_id
+}
+
+3-
+post("/records/add")
+ SEND: {
+        "scenario_id",
+         "client_id",
+         "device_id",
+         "metrics",
+     "checklist",
+     "additional_info",
+      "record_id"
+ }
+
+RETURN: {
+    "id",
+      "collectionId",
+      "collectionName",
+      "created",
+      "updated",
+      "sceneario_id",
+      "client_id",
+      "device_id",
+      "user_id"
+}
+
+4-
+
