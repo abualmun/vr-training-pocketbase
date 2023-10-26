@@ -95,7 +95,7 @@ app.post("/devices/connect", async (req, res) => {
 
         return res.json(200, divice_updated)
     } catch (error) {
-        return res.json(error.code, error)
+        return res.json(error.status, error)
     }
 
 })
@@ -111,14 +111,15 @@ app.post("/devices/auto_connect", async (req, res) => {
 
     try {
 
-        const device = await pb.collection('devices').getFirstListItem(`device_serial_number = "${device_serial_number}"`);
-        if (device.connected == true) {
-            return res.json(200, divice)
+        const device = await pb.collection('devices').getFirstListItem(`device_serial_number = "${req.body.device_serial_number}"`);
+        if (device.connected) {
+            return res.json(200, device)
         } else {
-            res.json(200, { connected: false, message: "device is not connected to client" })
+            return res.json(200, { connected: false, message: "device is not connected to client" })
         }
     } catch (error) {
-        return res.json(error.code, error)
+        return res.json(200, { connected: false, message: "device is not connected to client" })
+
     }
 
 })
@@ -161,7 +162,7 @@ app.post("/clients/start_session", async (req, res) => {
 
         return res.json(new_record)
     } catch (error) {
-        return json(error.code, error)
+        return json(error.status, error)
     }
 
 })
@@ -201,18 +202,32 @@ app.post("/records/add", async (req, res) => {
     //         "device_id",
     //         "metrics",
     //     "checklist",
-    //     "additional_info"
+    //     "additional_info",
+    //      "device_serial_number",
+    //      "record_id"
     // }
 
 
     try {
+
+
+
+        const device = await pb.collection('devices').getFirstListItem(`device_serial_number = "${req.body.device_serial_number}"`);
+
+        const device_data = {
+            ready: false,
+            running_scenario: "",
+            running_record: ""
+        }
+        const device_updated = await pb.collection('devices').update(device.id, device_data);
+
 
         const data = {
             "scenario_id": req.body.scenario_id,
             "client_id": req.body.client_id,
             "device_id": req.body.device_id,
         };
-        const record = await pb.collection('playing_records').update(data);
+        const record = await pb.collection('playing_records').getFirstListItem(`id = "${req.body.record_id}"`);
         const record_id = record.id;
 
 
