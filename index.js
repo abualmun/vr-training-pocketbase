@@ -52,7 +52,7 @@ app.get("/devices/add", async (req, res) => {
 
     // GENERATE CONNECT-CODE
     try {
-        var connect_code = 123456
+        var connect_code = getRandomInt(999999);
         var devices = await pb.collection('devices').getFullList({ filter: `connect_code=${connect_code}` });
         while (devices.length != 0) {
             connect_code = (connect_code + 1) % 999999;
@@ -106,7 +106,6 @@ app.post("/devices/connect", async (req, res) => {
 // call from device
 app.post("/devices/auto_connect", async (req, res) => {
     if (!pb.authStore.isValid) return res.json(200, { success: false, mesage: "invalid or expired token" })
-    if (!pb.authStore.isValid) return res.json(200, { success: false, mesage: "invalid or expired token" })
 
 
 
@@ -131,13 +130,16 @@ app.post("/devices/auto_connect", async (req, res) => {
 
 
 // call from client
-app.get("/devices/list", (req, res) => {
+app.get("/devices/list", async (req, res) => {
     if (!pb.authStore.isValid) return res.json(200, { success: false, mesage: "invalid or expired token" })
+    try {
 
+        var devices = await pb.collection('devices').getFullList();
+        return res.json(200, { "success": true, "devices": devices })
 
-    res.json(200, { token: pb.authStore.model.id })
-
-
+    } catch (error) {
+        return res.json(error.status, error)
+    }
 })
 
 // call from client
@@ -347,6 +349,13 @@ async function AddNewScenario(pb, client_id, scenario_name, metrics, checklist, 
     // operation succeeded?
     return true;
 }
+
+function getRandomInt(max) {
+    return Math.floor(Math.random() * max);
+}
+
+
+
 
 function GetScenarioRecords(scenario_id) {
 
