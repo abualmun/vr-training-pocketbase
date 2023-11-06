@@ -1,6 +1,8 @@
 // require("cross-fetch/polyfill")
 const cors = require("cors")
 const PocketBase = require('pocketbase/cjs');
+const swaggerJsdoc = require("swagger-jsdoc")
+const swaggerUI = require("swagger-ui-express")
 
 const pb = new PocketBase('http://127.0.0.1:8090');
 
@@ -11,16 +13,55 @@ app.use(express.json())
 app.use(cors());
 const port = 3000
 
+const options = {
+    definition: {
+        openapi: '3.1.0',
+        info: {
+            title: 'VR-Training backend with pockebase',
+            version: '1.0.0'
+
+        },
+        servers: [{ url: 'http://localhost:3000' }]
+    },
+    apis: ['./index.js']
+}
+
+const swaggerSpec = swaggerJsdoc(options)
+app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec))
+
 
 // call from client
 app.post("/clients/login", async (req, res) => {
-
-    // SEND:
-    // {
-    //     username,
-    //     password,
-    // }
-
+    /**
+     * @swagger
+     * /clients/login:
+     *  post:
+     *      summary: client login
+     *      description: login using pocketbase auth with password and username  
+     *      requestBody:
+     *          required: true
+     *          content:
+     *              application/json:
+     *                 schema:
+     *                     type: object
+     *                     properties:
+     *                         username:
+     *                             type: string
+     *                         password:
+     *                             type: string              
+     *      responses:
+     *          200:
+     *              description: To test
+     *              content:
+     *               application/json:
+     *                   schema:
+     *                     type: object
+     *                     properties:
+     *                         name:
+     *                             type: string
+     *                         seats:
+     *                             type: string   
+     */
 
     try {
         const authData = await pb.collection('clients').authWithPassword(
@@ -45,7 +86,7 @@ app.post("/clients/login", async (req, res) => {
 
 
 // call from client
-app.get("/devices/add", async (req, res) => {
+app.get("/clients/add_device", async (req, res) => {
     if (!pb.authStore.isValid) return res.json(200, { success: false, mesage: "invalid or expired token" })
 
 
@@ -78,13 +119,49 @@ app.get("/devices/add", async (req, res) => {
 app.post("/devices/connect", async (req, res) => {
     if (!pb.authStore.isValid) return res.json(200, { success: false, mesage: "invalid or expired token" })
 
+    /**
+     * @swagger
+     * /devices/connect:
+     *  post:
+     *      summary: link device 
+     *      description: used to link new device to client license  
+     *      requestBody:
+     *          required: true
+     *          content:
+     *              application/json:
+     *                 schema:
+     *                     type: object
+     *                     properties:
+     *                         connect_code:
+     *                             type: int
+     *                             description: the code showing in the client admin panel
+     *                         device_serial_number:
+     *                             type: string              
+     *                             description: any unique string the device can provide
+     *      responses:
+     *          200:
+     *              description: To test
+     *              content:
+     *               application/json:
+     *                   schema:
+     *                     type: object
+     *                     properties:
+     *                          device_id:
+     *                              type: string
+     *                          device_serial_number:
+     *                              type: string   
+     *                          client_id:
+     *                              type: string
+     *                          connect_code:
+     *                              type: string
+     *                          ready:
+     *                              type: bool
+     *                          running_scenario:
+     *                              type: string 
+     *                          running_record:
+     *                              type: string        
+     */
 
-
-    // SEND:{
-    //     connect_code,
-    //     device_serial_number
-
-    // }
     const connect_code = req.body.connect_code
     try {
 
@@ -106,12 +183,47 @@ app.post("/devices/connect", async (req, res) => {
 // call from device
 app.post("/devices/auto_connect", async (req, res) => {
     if (!pb.authStore.isValid) return res.json(200, { success: false, mesage: "invalid or expired token" })
+    /**
+     * @swagger
+     * /devices/connect:
+     *  post:
+     *      summary: link device 
+     *      description: used to link new device to client license  
+     *      requestBody:
+     *          required: true
+     *          content:
+     *              application/json:
+     *                 schema:
+     *                     type: object
+     *                     properties:
+     *                         device_serial_number:
+     *                             type: string              
+     *                             description: any unique string the device can provide
+     *      responses:
+     *          200:
+     *              description: To test
+     *              content:
+     *               application/json:
+     *                   schema:
+     *                     type: object
+     *                     properties:
+     *                          device_id:
+     *                              type: string
+     *                          device_serial_number:
+     *                              type: string   
+     *                          client_id:
+     *                              type: string
+     *                          connect_code:
+     *                              type: string
+     *                          ready:
+     *                              type: bool
+     *                          running_scenario:
+     *                              type: string 
+     *                          running_record:
+     *                              type: string        
+     */
 
 
-
-    // SEND:{
-    //     device_serial_number
-    // }
 
     try {
 
@@ -181,10 +293,47 @@ app.post("/clients/start_session", async (req, res) => {
 // call from device
 app.post("/devices/start_game", async (req, res) => {
     if (!pb.authStore.isValid) return res.json(200, { success: false, mesage: "invalid or expired token" })
-
-    // SEND:{
-    //     device_serial_number
-    // }
+    /**
+     * @swagger
+     * /devices/start_game:
+     *  post:
+     *      summary: start game 
+     *      description: used to start the game after the client presses the start session button  
+     *      requestBody:
+     *          required: true
+     *          content:
+     *              application/json:
+     *                 schema:
+     *                     type: object
+     *                     properties:
+     *                         device_serial_number:
+     *                             type: string              
+     *                             description: any unique string the device can provide
+     *      responses:
+     *          200:
+     *              description: To test
+     *              content:
+     *               application/json:
+     *                   schema:
+     *                     type: object
+     *                     properties:
+     *                          device_id:
+     *                              type: string 
+     *                          client_id:
+     *                              type: string
+     *                          scenario_id:
+     *                              type: string
+     *                          scenario_name:
+     *                              type: string 
+     *                          record_id:
+     *                              type: string
+     *                          metrics_keys:
+     *                              type: array 
+     *                          checklist_keys:
+     *                              type: array 
+     *                          additional_info:
+     *                              type: array         
+     */
 
     const device_serial_number = req.body.device_serial_number;
 
@@ -194,14 +343,14 @@ app.post("/devices/start_game", async (req, res) => {
         const scenario = await pb.collection('scenarios').getFirstListItem(`id = "${device.running_scenario}"`);
 
         return res.json(200, {
+            client_id: device.client_id,
             device_id: device.id,
+            record_id: device.running_record,
             scenario_id: device.running_scenario,
             scenario_name: scenario.name,
             metrics_keys: scenario.metrics_keys,
             checklist_keys: scenario.checklist_keys,
-            additional_info: scenario.additional_info,
-            client_id: device.client_id,
-            record_id: device.running_record
+            additional_info: scenario.additional_info
         })
     } else {
         return res.json(200, { status: "failed", message: "device not marked ready" })
@@ -212,16 +361,52 @@ app.post("/devices/start_game", async (req, res) => {
 app.post("/records/add", async (req, res) => {
     if (!pb.authStore.isValid) return res.json(200, { success: false, mesage: "invalid or expired token" })
 
-    // SEND: {
-    //     "scenario_id",
-    //         "client_id",
-    //         "device_id",
-    //         "metrics",
-    //     "checklist",
-    //     "additional_info",
-    //      "device_serial_number",
-    //      "record_id"
-    // }
+    /**
+    * @swagger
+    * /records/add:
+    *  post:
+    *      summary: add playing recored
+    *      description: used after finishing the game to record the player results in the database  
+    *      requestBody:
+    *          required: true
+    *          content:
+    *              application/json:
+    *                 schema:
+    *                     type: object
+    *                     properties:
+    *                         client_id:
+    *                             type: string 
+    *                         device_id:
+    *                             type: string
+    *                         device_serial_number:
+    *                             type: string  
+    *                         record_id:
+    *                             type: string
+    *                         scenario_id:
+    *                             type: string 
+    *                         metrics:
+    *                             type: object 
+    *                         checklist:
+    *                             type: object 
+    *                         additional_info:
+    *                             type: string               
+    *      responses:
+    *          200:
+    *              description: To test
+    *              content:
+    *               application/json:
+    *                   schema:
+    *                     type: object
+    *                     properties:
+    *                          device_id:
+    *                              type: string 
+    *                          client_id:
+    *                              type: string
+    *                          scenario_id:
+    *                              type: string
+    *                          user_id:
+    *                              type: string         
+    */
 
 
     try {
@@ -354,65 +539,3 @@ function getRandomInt(max) {
     return Math.floor(Math.random() * max);
 }
 
-
-
-
-function GetScenarioRecords(scenario_id) {
-
-    // playing records of the scenario
-    return json_list;
-}
-
-
-function GetDeviceRecords(device_id) {
-
-    // playing records of the device
-    return json_list;
-}
-
-function GetUserRecords(user_id) {
-
-    // playing records of the user
-    return json_list;
-}
-
-function StartGameSession(client_id, device_id, scenario_id, user_id) {
-
-    // send json of scenario customization to the targeted device
-    return json;
-}
-
-function StorePlayingRecord(client_id, device_id, user_id, scenario_id, metrics, checklist, additional_info) {
-
-
-    // operation succeeded?
-    return true;
-}
-
-function ClientLogin(username, password) {
-
-    return login_token, client_info
-}
-
-function DeviceNormalLogin(username, password) {
-
-
-    return login_token;
-}
-
-function DeviceAutoLogin(auto_login_token) {
-
-    // operation succeeded?
-    return true;
-}
-
-
-
-// TOKENS
-
-function GenerateLoginToken() {
-
-}
-function RefreshToken() {
-
-}
